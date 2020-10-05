@@ -17,7 +17,15 @@ spec:
   - host: {{ .Values.aggregatePrometheus.hostName }}
     http:
       paths:
-      - backend:
-          serviceName: aggregate-prometheus-web
+      - path: /
+        backend:
+{{- if semverCompare ">= 1.19-0" .Capabilities.KubeVersion.GitVersion }}        
+          service:
+            name: aggregate-prometheus-web
+            port:
+              number: 80
+        pathType: Prefix
+{{- else }}
+          servieName: aggregate-prometheus-web
           servicePort: 80
-        path: /
+{{- end -}}

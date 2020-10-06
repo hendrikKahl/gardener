@@ -20,8 +20,17 @@ spec:
   - host: {{ required ".hostName is required" .hostName }}
     http:
       paths:
-      - backend:
+      - path: /
+    {{- if semverCompare ">= 1.19-0" .Capabilities.KubeVersion.GitVersion }}
+        pathType: Prefix
+        backend:
+          service:
+            name: prometheus-web
+            port:
+              number: 80
+    {{- else }}
+        backend:
           serviceName: prometheus-web
           servicePort: 80
-        path: /
+    {{- end }}
   {{- end }}

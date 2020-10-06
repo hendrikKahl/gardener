@@ -23,8 +23,17 @@ spec:
   - host: {{ required ".hostName is required" .hostName }}
     http:
       paths:
-      - backend:
+      - path: /
+    {{- if semverCompare ">= 1.19-0" .Capabilities.KubeVersion.GitVersion }}
+        pathType: Prefix
+        backend:
+          service:
+            name: grafana-{{ $.Values.role }}
+            port:
+              number: {{ required ".ports.grafana is required" $.Values.ports.grafana }}
+    {{- else }}
+        backend:
           servicePort: {{ required ".ports.grafana is required" $.Values.ports.grafana }}
           serviceName: grafana-{{ $.Values.role }}
-        path: /
+    {{- end }}
   {{- end }}
